@@ -1,0 +1,37 @@
+<script>
+
+    document.getElementById('s-out-bt').addEventListener('click',signout);
+
+      function signout()
+      {
+          document.signout.submit();
+          console.log("Sign out clicked.");
+      }
+
+  </script>
+
+  <script>
+    const currentRoute = window.location.pathname;
+    if(currentRoute != '/'){
+      document.getElementById('hello-user-link').style.display = "none";
+    }
+      // Wait for the document to be fully loaded
+      document.addEventListener("DOMContentLoaded", function () {
+        // Get references to the elements
+        const toggleButton = document.querySelector(".navbar-toggler");
+        const helloUserLink = document.getElementById("hello-user-link");
+    
+        // Add a click event listener to the toggle button
+        toggleButton.addEventListener("click", function () {
+          // Toggle the "d-none" class on the helloUserLink
+          helloUserLink.classList.toggle("d-none");
+        });
+      });
+    </script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script>window.jQuery || document.write('<script src="public/javaScript/jqueryslim.js"><\/script>')</script>
+  <script src="/javaScript/poopermin.js"></script>
+  <script src="/javaScript/bootstrapmin.js"></script>
+  
+</body>
+</html>

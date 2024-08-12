@@ -1,0 +1,49 @@
+<%- include("mainhead") -%>
+
+<div style="width: 90%;">
+    <form action="/validate-quiz/<%= quiz.quizID %>" method="post" id = "ans-sheet">
+            <% count = 1 %>
+            <% quiz.questions.forEach(function(question) { %>
+                <p><strong style="margin-right: 10px;"><%= count %>)</strong><%= question.questionName %></p>
+                <label class="op-lab"><input type="radio" name= "<%= question.qid %>" value= "<%= question.optiona.oid %>"><%= question.optiona.opt %></label>
+                <label class="op-lab"><input type="radio" name= "<%= question.qid %>" value= "<%= question.optionb.oid %>"><%= question.optionb.opt %></label>
+                <label class="op-lab"><input type="radio" name= "<%= question.qid %>" value= "<%= question.optionc.oid %>"><%= question.optionc.opt %></label>
+                <label class="op-lab"><input type="radio" name= "<%= question.qid %>" value= "<%= question.optiond.oid %>"><%= question.optiond.opt %></label>
+            <hr>
+            <% count++ %>
+        <% }); %> 
+    </form>
+</div>
+<script>
+
+    async function submit(){
+
+        try{
+
+            const response =  await fetch('/chk-submit', {
+                method: 'POST',
+                headers: {
+                     'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({qzID: "<%= quiz.quizID %>"})
+            });
+
+            const info = await response.json();
+
+            if(info.stat === true){
+                document.getElementById('ans-sheet').submit();
+            }
+            else{
+                alert(info.msg);
+            }
+        } catch{
+            alert("Error in API COnnection");
+        }
+    }
+</script>
+<footer>
+    <button class="btn-primary btn" onclick="submit()">Submit</button>
+    <button class="btn-primary btn" style="margin-left: 2%;">clear all answers</button>
+</footer>
+
+<%- include("mainfooter")-%>

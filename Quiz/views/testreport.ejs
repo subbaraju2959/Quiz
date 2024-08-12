@@ -1,0 +1,23 @@
+<%- include("mainhead") -%>
+<center>
+    <label style="margin-bottom: 15px;"><h1>Quiz Report</h1></label><br>
+    <label style="font-size: larger;"><strong>Quiz: </strong><%= quiz[1] %> (<i><%= quiz[0] %></i>)</label>
+    <% list = list.reverse(); %>
+    <% if (list.length == 0) {%>
+        <br><label style="margin-top: 20px;"><h3>No One Attempted The Quiz Yet</h3></label>
+        <%} else{ %>
+</center>
+<div style="width: 90%;">
+    <hr>
+    <% list.forEach(function(user) { %>
+    <div>
+        <label><strong>USer: <%= user.name %></strong></label><label style="margin-left: 3px;">(<i><%= user.userName %></i>)</label><br>
+        <label class="score"><strong>Score: </strong><%= user.score %>/<%= user.totalQues %></label><br>
+        <label><strong>Time of submited: </strong> <%= user.submitTime %> </label>
+    </div>
+    <hr>
+    <% }); %> 
+</div>
+<%}%>
+
+<%- include("mainfooter")-%>

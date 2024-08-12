@@ -1,0 +1,21 @@
+<%- include("mainhead") -%>
+<center>
+    <label style="margin-bottom: 15px;"><h1>Quizs Created</h1></label>
+    <% list = list.reverse(); %>
+    <% if (list.length == 0) {%>
+        <br><label style="margin-top: 20px;"><h3>Not Created any Quiz's Yet</h3></label>
+        <%} else{ %>
+</center>
+<div style="width: 90%;">
+    <% list.forEach(function(quiz) { %>
+    <a href="/test-report/<%= quiz.quizID %>" style="color: black;"><div>
+        <label><strong>Quiz: <%= quiz.quizName %></strong></label><label style="margin-left: 3px;">(<i><%= quiz.quizID %></i>)</label><br>
+        <label class="score"><strong>No.of People taken: </strong><%= quiz.noTaken %></label><br>
+        <label><strong>Time of created: </strong> <%= quiz.time.time %> <%= quiz.time.date %> </label>
+    </div></a> 
+    <hr>
+    <% }); %> 
+</div>
+<%}%>
+
+<%- include("mainfooter")-%>

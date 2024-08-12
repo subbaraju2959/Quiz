@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<!-- Created By CodingLab - www.codinglabweb.com -->
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <title>My Quiz - Sign Up</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <style>
+        body{
+          height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 10px;
+          background: linear-gradient(135deg, #71b7e6, #9b59b6);
+        }
+        #err{
+          padding-top: 3%;
+        }
+     </style>
+   </head>
+<body>
+  <div class="container">
+    <div class="title">Register for Quiz</div>
+    <center><label id = 'err' style="color: red;"></label></center>
+    <div class="content">
+      <form action="/signup" method="post">
+        <div class="user-details">
+          <div class="input-box">
+            <span class="details">Full Name</span>
+            <input type="text" name = "name" placeholder="Enter your name" required>
+          </div>
+          <div class="input-box">
+            <span class="details">Username</span>
+            <input type="text" name = "usr" placeholder="Enter your username" required>
+          </div>
+          <div class="input-box">
+            <span class="details">Password</span>
+            <input type="password" name = "pass" id = "pass" placeholder="Enter your password" required>
+          </div>
+          <div class="input-box">
+            <span class="details">Confirm Password</span>
+            <input type="password" name = "cpass" id = "cpass" placeholder="Confirm your password" required>
+          </div>
+          <div class="input-box">
+            <span class="details">Email</span>
+            <input type="text" name = "mail" id = "mail" placeholder="Enter your Email" required>
+          </div>
+          <div class="input-box"></div>
+          <div class="input-box">
+            <span class="details">OTP</span>
+            <input type="text" name = "otp" id = "otp" placeholder="Enter your OTP" required>
+          </div>
+          <div class="input-box btn-otp">
+            <center>
+            <button class="otp-btn" style="  background-color: rgb(79, 79, 240); color: antiquewhite;
+            border: none; width: 50%; padding: 10px; margin-bottom: 5px; border-radius: 15px;" id="otpbt" onclick="mailOtp()">GET OTP</button>
+            </center>
+          </div>
+        </div>
+        
+        <div class="gender-details">
+          <input type="radio" name="gender" id="dot-1">
+          <input type="radio" name="gender" id="dot-2">
+          <input type="radio" name="gender" id="dot-3">
+          <span class="gender-title">Gender</span>
+          <div class="category">
+            <label for="dot-1">
+            <span class="dot one"></span>
+            <span class="gender">Male</span>
+          </label>
+          <label for="dot-2">
+            <span class="dot two"></span>
+            <span class="gender">Female</span>
+          </label>
+          <label for="dot-3">
+            <span class="dot three"></span>
+            <span class="gender">Prefer not to say</span>
+            </label>
+          </div>
+        </div>
+        <div class="button">
+          <input type="submit" value="Register">
+        </div>
+        <div class="signup-link">
+            Already a member <a href="/">Login now</a>
+         </div>
+      </form>
+    </div>
+  </div>
+  <script>
+
+function disableButton() {
+  var button = document.getElementById("otpbt");
+  var countdownElement = button;
+  
+  var countdownDuration = 30; // Countdown duration in seconds
+  button.disabled = true; // Disable the button
+
+  // Function to update the countdown display
+  function updateCountdownDisplay() {
+    countdownElement.innerHTML = `Resend OTP in (${countdownDuration})`;
+    countdownDuration--;
+
+    if (countdownDuration < 0) {
+      countdownElement.innerText = "Resend OTP"; // Restore the original text
+      button.disabled = false; // Re-enable the button
+    } else {
+      setTimeout(updateCountdownDisplay, 1000); // Update countdown every second
+    }
+  }
+
+  updateCountdownDisplay(); // Start the countdown
+}
+
+document.querySelector('form').addEventListener('submit', async function(event) {
+  event.preventDefault(); // Prevent the default form submission behavior
+
+  try {
+    const isValid = await checkSubmit();
+
+    if (isValid) {
+      this.submit(); // Submit the form if isValid is true
+    }
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+
+function isValidEmail(email) {
+  // Regular expression for a basic email format
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+  
+  // Test the email against the regex pattern
+  return emailRegex.test(email);
+}
+
+    async function mailOtp(){
+
+      var mail = document.getElementById('mail').value;
+      if(!isValidEmail(mail)){
+        alert("Enter valid email");
+        return;
+      }
+
+      disableButton();
+
+      const response = await fetch('/send-login-otp',{
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({mail: mail})
+      });
+
+      const info = await response.json();
+      console.log();
+
+      if(info.stat == true){
+        alert("Mail is Sent");
+        return true;
+      }
+      else{
+        alert("Error in sending mail");
+        return false;
+      }
+
+    }
+
+    async function validateOtp() {
+  var otp = document.getElementById('otp').value;
+
+  try {
+    const response = await fetch('/validate-login-otp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ otp: otp }),
+    });
+
+    const info = await response.json();
+
+    if (info.stat === true) {
+      return true; // Return true if the OTP is valid
+    } else {
+      return false; // Return false if the OTP is not valid
+    }
+  } catch (err) {
+    alert('Error in reading OTP');
+    return false; // Return false in case of an error
+  }
+}
+
+    async function checkSubmit() {
+  var pass = document.getElementById('pass').value;
+  var cpass = document.getElementById('cpass').value;
+  var msg = document.getElementById('err');
+
+  if (pass !== cpass) {
+    msg.innerHTML = "Password and Confirm password are different";
+    return false;
+  }
+
+  if(await validateOtp() !== true){
+    msg.innerHTML = "Invalid Otp";
+    return false;
+  }
+
+  var usr = document.getElementsByName('usr')[0].value; // Use [0] to get the first element
+
+  const url = '/chk-user/' + usr;
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', url, false); // Make the request synchronous
+  xhr.setRequestHeader('Content-Type', 'application/json');
+
+  try {
+    xhr.send(JSON.stringify({ usr: usr }));
+    var info = JSON.parse(xhr.responseText);
+
+    if (info.stat === true) {
+      return true; // Return true if validation is successful
+    } else {
+      msg.innerHTML = 'User Already Exists';
+      return false; // Return false if validation fails
+    }
+  } catch (err) {
+    msg.innerHTML = 'Error in connecting to database';
+    return false;
+  }
+}
+
+  </script>
+</body>
+</html>

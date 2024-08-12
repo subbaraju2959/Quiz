@@ -1,0 +1,48 @@
+<%- include("mainhead") -%>
+
+<center>
+    <div class="starter-template" style="margin-top: 5vh;">
+        <h2>Enter Quiz-ID to Join the Quiz</h2>
+            <table>
+                <tr>
+                    <td>
+                        <label style="margin-bottom: 0;"><h4 style="margin-bottom: 0; margin-right: 15px;">Quiz-ID: </h4></label>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" width="50px" id = 'qid'>
+                    </td>
+                    <td><button class="btn-success btn" style="margin-left: 5px;" onclick="chkQuiz()">Join Quiz</button></td>
+                </tr>
+            </table>
+    </div>
+    <script>
+        url = '/check-live-quiz';
+        async function chkQuiz(){
+            var roomID = document.getElementById('qid').value;
+            try{
+                const resp = await fetch(url,{
+                method:"POST",
+                headers: {
+                     'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({rid : roomID})
+            });
+
+            const info = await resp.json();
+
+            if(info.stat == true){
+                window.location.href = '/take-live-quiz';
+            }
+            else{
+                alert(info.msg);
+            }
+            }
+            catch(err){
+                console.log(err);
+            }
+            
+        }
+    </script>
+</center>
+
+<%- include("mainfooter")-%>

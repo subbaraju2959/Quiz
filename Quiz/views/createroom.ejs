@@ -1,0 +1,50 @@
+<%- include("mainhead") -%>
+
+<div class="starter-template" style="margin-top: 5vh;">
+    <h2>Enter Quiz-ID to Prepare live quiz</h2>
+        <table>
+            <tr>
+                <td>
+                    <label style="margin-bottom: 0;"><h4 style="margin-bottom: 0; margin-right: 15px;">Quiz-ID: </h4></label>
+                </td>
+                <td>
+                    <input type="text" class="form-control" width="50px" id = 'rid'>
+                </td>
+                <td><button class="btn-success btn" style="margin-left: 5px;" onclick="startLive()">Create Quiz</button></td>
+            </tr>
+        </table>
+</div>
+
+<script>
+    async function getValue(){
+            return (document.getElementById('rid').value != undefined) ? document.getElementById('rid').value : "";
+        }
+
+        async function startLive(){
+            console.log(await getValue());
+            try{
+                const resp = await fetch('/check-live-quiz-exist',{
+                    method:"POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ qzid: await getValue() })
+                });
+                const info = await resp.json();
+                console.log(info == true); 
+                if(await info.stat){
+                window.location.href = "/live-quiz-waiting-room/"+ await getValue();
+            }
+            else{
+                alert(info.msg);
+            }
+            }
+            catch (err){
+                alert("Error in connecting to the server");
+                console.error("Error:", err);
+            }
+
+        }
+</script>
+
+<%- include("mainfooter")-%>

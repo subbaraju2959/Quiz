@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>MY Quiz</title>
+
+    <link
+      rel="canonical"
+      href="https://getbootstrap.com/docs/4.0/examples/starter-template/" />
+
+    <!-- Bootstrap core CSS -->
+    <link href="/stylesheets/bootstrapcore.css" rel="stylesheet" />
+
+    <!-- Custom styles for this template -->
+    <link href="/stylesheets/home.css" rel="stylesheet" />
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+    <style>
+      body {
+        padding-top: 5rem;
+        margin: 0; /* Reset default body margin */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+      .starter-template {
+        padding: 3rem 1.5rem;
+        text-align: center;
+      }
+      .nav-usr {
+        margin-right: 10%;
+      }
+      .d-none {
+        display: none !important;
+      }
+      .s-out {
+        margin-left: 3%;
+      }
+      .s-out:hover {
+        cursor: pointer;
+      }
+      #s-out-bt:hover {
+        color: rgb(241, 149, 197);
+      }
+      .add-question {
+        padding-left: 5%;
+        padding-right: 5%;
+      }
+      input[type="radio"] {
+        margin-left: 3%;
+        margin-right: 3%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav
+      class="navbar navbar-expand-md navbar-dark bg-dark fixed-top"
+      style="background: linear-gradient(-135deg, #c850c0, #4158d0)">
+      <a class="navbar-brand" href="/" style="font-size: 25px">Quiz</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarsExampleDefault"
+        aria-controls="navbarsExampleDefault"
+        aria-expanded="false"
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#"
+              >Home <span class="sr-only">(current)</span></a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Edit User</a>
+          </li>
+          <li class="nav-item"></li>
+          <!--
+            <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown01">
+              <a class="dropdown-item" href="#">Action</a>
+              <a class="dropdown-item" href="#">Another action</a>
+              <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+          </li>
+        --></ul>
+        <a class="navbar-brand nav-usr" id="hello-user-link" href="#"
+          >Hello <%= name %></a
+        >
+        <form class="form-inline my-2 my-lg-0">
+          <input
+            class="form-control mr-sm-2"
+            type="text"
+            id="lv-id"
+            placeholder="Quiz ID"
+            aria-label="Search" />
+          <button
+            class="btn btn-outline-success my-2 my-sm-0"
+            type="submit"
+            onclick="chkQz()">
+            Join Live Quiz
+          </button>
+        </form>
+        <lable class="navbar-brand s-out" id="s-out-bt"> Sign Out</lable>
+      </div>
+    </nav>
+
+    <script>
+      lin = "/check-live-quiz";
+      async function chkQz() {
+        var roomID = document.getElementById("lv-id").value;
+        try {
+          const resp = await fetch(lin, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ rid: roomID }),
+          });
+
+          const info = await resp.json();
+
+          if (info.stat == true) {
+            window.location.href = "/take-live-quiz";
+          } else {
+            alert(info.msg);
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    </script>
+
+    <form action="/logout" method="post" name="signout"></form>
+  </body>
+</html>

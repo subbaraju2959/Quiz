@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<!-- Created By CodingNepal -->
+<html lang="en" dir="ltr">
+   <head>
+      <meta charset="utf-8">
+      <title>My Quiz - Login</title>
+      <link rel="stylesheet" href="/stylesheets/style.css">
+      <style>
+        
+        html,body{
+         display: grid;
+         height: 100%;
+         width: 100%;
+         place-items: center;
+         background: #f2f2f2;
+         background: linear-gradient(-135deg, #71b7e6, #9b59b6);
+      }
+
+   form .button input:hover{
+   /* transform: scale(0.99); */
+   background: linear-gradient(-135deg, #71b7e6, #9b59b6);
+   }
+
+   .err{
+      margin-top: 10%;
+      padding-left: 5%;
+   }
+
+
+      </style>
+   </head>
+   <body>
+      <div class="wrapper">
+         <div class="title">
+            Login to Quiz
+         </div>
+         <center>
+            <lable id = "err" style="color: red;">
+            </lable>
+         </center>
+         
+         <form action="/login" method="post" onsubmit="return validate()">
+            <div class="field">
+               <input type="text" name = 'usr' value="demo1" required>
+               <label>User Name</label>
+            </div>
+            <div class="field">
+               <input type="password" name = 'pass' value="demo" required>
+               <label>Password</label>
+            </div>
+            <div class="content">
+               <div class="checkbox">
+                  <input type="checkbox" id="remember-me" name="remember-me">
+                  <label for="remember-me">Remember me</label>
+               </div>
+               <div class="pass-link">
+                  <a href="#">Forgot password?</a>
+               </div>
+            </div>
+            <div class="field button" >
+               <input type="submit" value="Login">
+            </div>
+            <div class="signup-link">
+               Not a member? <a href="/signup">Signup now</a>
+            </div>
+         </form>
+      </div>
+      <script>
+         async function validate(){
+            const usr = document.getElementsByName('usr')[0].value;
+            const pass = document.getElementsByName('pass')[0].value;
+            const mgsbx = document.getElementById('err');
+      
+            const url = '/valogin';
+      
+            try {
+               const response = await fetch(url, {
+                  method: 'POST',
+                  headers: {
+                     'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({usr : usr, pass: pass})
+               });
+      
+               const info = await response.json();
+      
+               console.log(info);
+               if(info.msg)
+                  mgsbx.innerHTML = info.msg;
+               else
+                  mgsbx.innerHTML = "";
+               
+               
+      
+               if (info.stat === true) {
+                  return true; // Return true if validation is successful
+               } else {
+                  return false; // Return false if validation fails
+               }
+            } catch (err) {
+               mgsbx.innerHTML = "Error in connection to API";
+               return false; // Return false if there's an error
+            }
+         }
+      
+         // Add an event listener to the form submission
+         document.querySelector('form').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the default form submission behavior
+      
+            const isValid = await validate(); // Call the validate function and wait for its result
+      
+            if (isValid) {
+               this.submit(); // If validation is successful, manually trigger the form submission
+            }
+         });
+      </script>
+      
+   </body>
+</html>

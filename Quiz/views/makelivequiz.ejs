@@ -1,0 +1,212 @@
+<%- include("mainhead") -%>
+<script>
+    document.getElementById('hello-user-link').innerHTML = "";
+</script>
+
+<div class="ques-disp">
+    <form>
+        <label>Quiz Id: </label>
+        <label id="qz-id"></label><br>
+        <label>Quiz Name: </label>
+        <input type="text" name="qz-name" placeholder="Enter Quiz Name" style="border-color: rgb(207, 207, 207); border-style: solid; border-radius: 3px; width: 80%;">
+    </form>
+</div>
+
+<script>
+    const currentDateTime = new Date();
+    const year = currentDateTime.getFullYear();
+    const month = currentDateTime.getMonth() + 1;
+    const day = currentDateTime.getDay();
+    const hour = currentDateTime.getHours();
+    const min = currentDateTime.getMinutes();
+    const sec = currentDateTime.getSeconds();
+
+    const quizId = "<%= user %>" + year + month + day + hour + min + sec;
+
+    document.getElementById('qz-id').innerHTML = quizId;
+</script>
+
+<div class = "ques-disp">
+    
+</div>
+
+<center>
+    <label id = "empt-err" style="color: rgb(255, 0, 0);"><h2></h2></label>
+</center>
+
+    <div class = "add-question"style="width: 90%; padding-left: 5%; padding-right: 5%;">
+        <form id = "questionForm" class = "question-form">
+          <div class="form-group">
+            <label><h4>Question</h4></label>
+            <textarea class="form-control" type="text" name="questionName" placeholder="Enter question" rows="3" required></textarea>
+            <label>Option A</label>
+            <textarea class="form-control" name="optiona" rows="1" cols="30" required></textarea>
+            <label>Option B</label>
+            <textarea class="form-control" name="optionb" rows="1" cols="30" required></textarea>
+            <label>Option C</label>
+            <textarea class="form-control" name="optionc" rows="1" cols="30" required></textarea>
+            <label>Option D</label>
+            <textarea class="form-control" name="optiond" rows="1" cols="30" required></textarea>
+            <div style="margin:5px;">
+                <label>Answer: </label>
+                <input type="radio" name="ans" value='1' >A 
+                <input type="radio" name="ans" value='2' >B
+                <input type="radio" name="ans" value='3' >C
+                <input type="radio" name="ans" value='4' >D
+            </div>
+          </div>
+        </form>
+        <div>
+            <button class="btn btn-primary" type = "submit" name="button" onclick="addQuestion()">Add Question</button>
+        </div>
+        
+        <button class="btn btn-lg btn-primary" style="margin-top: 20px; margin-bottom: 20px;" onclick="submitQuestions()">Submit Questions</button>
+    </div>
+    
+    <script>
+    const questionsList = [];
+    let idq = 1;
+
+    function addQuestion() {
+        document.getElementById('empt-err').innerHTML = '';
+        const form = document.getElementById("questionForm");
+        const formData = new FormData(form);
+
+        // Check if any field is empty
+        let isEmptyField = false;
+        formData.forEach(value => {
+            if (value.trim() === '') {
+                isEmptyField = true;
+            }
+        });
+
+        // Check if a radio option is selected
+        const selectedRadioValue = formData.get("ans");
+        if (!selectedRadioValue) {
+            isEmptyField = true;
+        }
+
+        if (isEmptyField) {
+            document.getElementById('empt-err').innerHTML = 'Fill in all fields before adding a question.';
+            return;
+        }
+
+        const question = {
+            qid: idq,
+            questionName: formData.get("questionName"),
+            optiona: {opt :formData.get("optiona"), oid:1},
+            optionb: {opt :formData.get("optionb"), oid:2},
+            optionc: {opt :formData.get("optionc"), oid:3},
+            optiond: {opt :formData.get("optiond"), oid:4},
+            ans: parseInt(selectedRadioValue)
+        };
+
+        questionsList.push(question);
+        console.log("Questions List:", questionsList);
+
+        idq++; // Increment the question ID for the next question
+        form.reset();
+
+        const parentDiv = document.querySelectorAll('.ques-disp')[1];
+
+        const newQuestionDiv = document.createElement('div');
+        newQuestionDiv.classList.add('alert');
+        newQuestionDiv.setAttribute('id', question.qid);
+        newQuestionDiv.setAttribute("onclick", "dispCont(this)");
+        newQuestionDiv.setAttribute('isDisp', "false");
+
+        newQuestionDiv.innerHTML =
+        '<label class="edit-css">&#9998;</label>' + 
+        '<span class="closebtn" ><label class="cls-bt">&times;</label></span>' +
+        '<lable class = "to-clk-ques" onclick = "toView(this)">'+question.questionName+'</lable>';
+
+        parentDiv.appendChild(newQuestionDiv);
+        window.scrollTo(0, document.body.scrollHeight);
+
+}
+
+    function toView(element){
+        let id = element.parentNode.id;
+        const foundQuestion = questionsList.find((question) => question.qid == id);
+        var val =
+            "<lable onclick = 'toNormal(this)'>" +
+            "<p>" + foundQuestion.questionName + "<br>" +
+            "Options: </br>" +
+            "A) " + foundQuestion.optiona.opt + "<br>" + 
+            "B) " + foundQuestion.optionb.opt + "<br>" + 
+            "C) " + foundQuestion.optionc.opt + "<br>" + 
+            "D) " + foundQuestion.optiond.opt + "<br>" + 
+            "<lable>Answer: " + foundQuestion.ans + "</lable>" + "</p>" +
+            "</lable>";
+        
+        element.parentNode.innerHTML = '<label class="edit-css">&#9998;</label>' + 
+        '<span class="closebtn" ><label class="cls-bt">&times;</label></span>' +
+        val;
+        
+    }
+
+    function toNormal(element){
+        let id = element.parentNode.id;
+        const foundQuestion = questionsList.find((question) => question.qid == id);
+        element.parentNode.innerHTML = 
+        '<label class="edit-css">&#9998;</label>' + 
+        '<span class="closebtn" ><label class="cls-bt">&times;</label></span>' +
+        '<lable class = "to-clk-ques" onclick = "toView(this)">'+foundQuestion.questionName+'</lable>';
+    }
+
+
+
+    function submitQuestions() {
+        const quizNameInput = document.querySelector('input[name="qz-name"]');
+        const quizName = quizNameInput.value;
+
+        const quiz = {
+            quizID: quizId,
+            questions: questionsList,
+            quizName: quizName
+        };
+
+        if(quizName == ""){
+            alert("Give a name to the quiz");
+        }
+        else if(questionsList.length === 0) {
+            document.getElementById('empt-err').innerHTML = 'Add at least one question';
+        } else {
+            postQuestions(quiz);
+        }
+    }
+
+    function postQuestions(quiz) {
+    
+        const apiUrl = '/post-ques-lquiz/<%= user %>';
+
+        async function postData(url = '', data) {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            return response.json();
+        }
+
+        postData(apiUrl, quiz)
+        .then((quiz) => {
+            if(quiz.stat === true){
+                console.log("Data sent to database");
+                window.location.replace('/');
+            }
+            else{
+                console.log("Not in sending to database");
+            }
+            
+        })
+        .catch((error) => {
+            console.error('Error posting data:', error);
+        });
+    }
+</script>
+      
+<%- include("mainfooter")-%>

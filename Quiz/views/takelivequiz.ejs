@@ -1,0 +1,237 @@
+<%- include("mainhead") -%>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var room = "<%= room %>";
+  var member = "<%= member %>";
+  const socket = io();
+</script>
+<script>
+  var qid = "";
+  var opid = "";
+  var quesid = "";
+  var optid = "";
+  var clicked = true;
+  var submit = false;
+  let startTime;
+  var timeDiff;
+</script>
+<div class="exmi-cond">
+  <div class="question" id="ques-cont" style="display: none">
+    <h2>Time Left : <label id="ques-tim-lft">10</label></h2>
+
+    <div class="ques-cont">
+      <h3 style="margin-bottom: 20px; padding-left: 10px" id="q">Hello</h3>
+      <div class="opt" id="a" onclick="setAnswer(this)"><h4>Balu</h4></div>
+      <div class="opt" id="b" onclick="setAnswer(this)"><h4>Balu</h4></div>
+      <div class="opt" id="c" onclick="setAnswer(this)"><h4>Balu</h4></div>
+      <div class="opt" id="d" onclick="setAnswer(this)"><h4>Balu</h4></div>
+    </div>
+  </div>
+
+  <div id="cd" style="display: none">
+    <h1 id="count-down-stat">Quiz starts in</h1>
+    <h1 id="count-down">10</h1>
+  </div>
+
+  <div class="scores" id="disp-scores" style="display: none">
+    <h1>Scores</h1>
+    <hr style="border-style: solid; width: 95%" />
+    <div class="score-graph"></div>
+  </div>
+
+  <div class="evalDisp" style="display: none; margin-top: 2vh" id="eval-disp">
+    <h1>Evaluating Scores</h1>
+  </div>
+  <hr />
+
+  <div
+    style="
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    "
+    id="open">
+    <h1>Quiz will begin shortly</h1>
+    <h1>Please wait</h1>
+  </div>
+</div>
+
+<script>
+  function rmAndDispScore(arr) {
+    console.log("function Called");
+    console.log(arr);
+    var scDis = document.getElementsByClassName("score-graph")[0];
+    scDis.innerHTML = "";
+    arr.forEach(element => {
+      var newDiv = document.createElement('div');
+      const mych = `
+  <label><strong>Contestant : </strong>${element.name}</label><br>\
+  <label><strong>Points : </strong>${element.points}<strong style = 'margin-left: 20px'>   Time: </strong>${(element.time).toFixed(4)}</label>\
+  <hr>\
+`;
+newDiv.innerHTML = mych;
+scDis.appendChild(newDiv);
+    });
+  }
+
+  function setAnswer(opt) {
+    if (clicked) {
+      alert("already selected");
+      return;
+    }
+    const stopTime = new Date();
+    const timeDiffInSeconds = Math.abs(
+      (stopTime.getTime() - startTime.getTime()) / 1000
+    );
+    const timeDiffInMilliseconds = Math.abs(
+      stopTime.getTime() - startTime.getTime()
+    );
+    timeDiff = timeDiffInSeconds.toFixed(5);
+
+    var qu = document.getElementById("q");
+    console.log(qu.attributes.qid);
+    var op = document.getElementById(opt.id);
+    opid = op.attributes.oid;
+    console.log(opid);
+    op.style.backgroundColor = "#687EFF";
+    quesid = qu.attributes.qid.value;
+    optid = opid.value;
+    console.log({
+      qid: qu.attributes.qid.value,
+      opt: opid.value,
+      time: timeDiff,
+    });
+    clicked = true;
+    //socket.emit("valques",room,member,{qid : qu.attributes.qid.value, opt : opid.value,time : timeDiff})
+  }
+</script>
+<script>
+  socket.on("quesCd", (t) => {
+    document.getElementById("ques-tim-lft").innerHTML = t;
+  });
+
+  socket.on("reqAns", () => {
+    console.log("requested");
+    document.getElementById("eval-disp").style.display = "flex";
+    document.getElementById("ques-cont").style.display = "none";
+    if (clicked)
+      socket.emit("valques", room, member, {
+        qid: quesid,
+        opt: optid,
+        time: timeDiff,
+      });
+    else {
+      console.log({ qid: qid, opt: opid.value, time: timeDiff });
+      socket.emit("valques", room, member, {
+        qid: quesid,
+        opt: optid,
+        time: timeDiff,
+      });
+    }
+    optid = "";
+  });
+
+  socket.on("qsctcd", (sec) => {
+    document.getElementById("count-down").innerHTML = sec;
+  });
+
+  socket.on("joinresp", (msg, stat) => {
+    alert(msg);
+  });
+
+  socket.on("recMsg", (ques) => {
+    alert(msg);
+  });
+
+  var shouldDisplay = false;
+
+  socket.on("dispScore", (map) => {
+    console.log("Scores");
+    console.log(map);
+    var dataArray = Object.entries(map).map(([name, { points, time }]) => ({
+      name,
+      points,
+      time,
+    }));
+    dataArray.sort((a, b) => {
+      if (a.points !== b.points) {
+        return b.points - a.points; // Sort by points (descending)
+      } else {
+        return a.time - b.time; // Sort by time (ascending)
+      }
+    });
+    rmAndDispScore(dataArray);
+    console.log("shorted");
+    console.log(dataArray);
+    if (shouldDisplay)
+      document.getElementById("disp-scores").style.display = "flex";
+    document.getElementById("eval-disp").style.display = "none";
+    document.getElementById("cd").style.display = "flex";
+  });
+
+  socket.on("st", () => {
+    document.getElementById("open").style.display = "none";
+    document.getElementById("disp-scores").style.display = "none";
+    console.log("dis-none");
+    document.getElementById("cd").style.display = "flex";
+  });
+
+  socket.on("question", (ques) => {
+    shouldDisplay = true;
+    console.log("ques");
+    document.getElementById("cd").style.display = "none";
+    document.getElementById("disp-scores").style.display = "none";
+    document.getElementById("ques-cont").style.display = "flex";
+    clicked = false;
+    document.querySelectorAll(".opt").forEach((element) => {
+      element.style.backgroundColor = "#e8e8e8";
+      document.getElementById("count-down-stat").innerHTML = "Next Question in";
+    });
+
+    document.getElementsByClassName("scores")[0].style.display = "none";
+    var q = document.getElementById("q");
+    q.setAttribute("qid", ques.qid);
+    q.innerHTML = ques.questionName;
+    var a = document.getElementById("a");
+    a.setAttribute("oid", ques.optiona.oid);
+    a.innerHTML = ques.optiona.opt;
+    var b = document.getElementById("b");
+    b.setAttribute("oid", ques.optionb.oid);
+    b.innerHTML = ques.optionb.opt;
+    var c = document.getElementById("c");
+    c.setAttribute("oid", ques.optionc.oid);
+    c.innerHTML = ques.optionc.opt;
+    var d = document.getElementById("d");
+    d.setAttribute("oid", ques.optiond.oid);
+    d.innerHTML = ques.optiond.opt;
+    startTime = new Date();
+  });
+
+  socket.emit("joinroom", { room: room, member: member });
+
+  socket.on("finalRes", (map) => {
+    var dataArray = Object.entries(map).map(([name, { points, time }]) => ({
+      name,
+      points,
+      time,
+    }));
+    dataArray.sort((a, b) => {
+      if (a.points !== b.points) {
+        return b.points - a.points; // Sort by points (descending)
+      } else {
+        return a.time - b.time; // Sort by time (ascending)
+      }
+    });
+    rmAndDispScore(dataArray);
+    console.log("final result srtd");
+    console.log(dataArray);
+    document.getElementById("eval-disp").style.display = "none";
+    const fin = document.getElementById("disp-scores");
+    fin.querySelector("h1").innerHTML = "Final Score";
+    fin.style.display = "flex";
+    document.getElementById("open").style.display = "none";
+  });
+</script>
+
+<%- include("mainfooter")-%>

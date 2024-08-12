@@ -1,0 +1,85 @@
+<%- include("mainhead") -%>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  var room = "<%= roomid %>";
+  socket.emit("createRoom", room);
+</script>
+
+<div class="">
+  <label><h2>Select evaluation scheam</h2></label><br />
+  <input type="radio" name="markSchem" value="one" />
+  <label><h5>1 Point for correct answer</h5></label><br />
+  <input type="radio" name="markSchem" value="fast" />
+  <label><h5>Fastest finger first</h5></label><br />
+</div>
+<div class="copy-link-cont">
+  <label class="live-qz-id"><%= roomid %></label>
+  <span
+    class="material-symbols-outlined"
+    onclick="copyToClipboard('<%= roomid %>')">
+    content_copy
+  </span>
+</div>
+<hr class="main-divd" />
+<center>
+  <label style="margin: 5px"><h3>Joined List</h3></label>
+</center>
+<div class="quiz-join-list"></div>
+
+<div
+  class="start-cont"
+  style="display: inline-flex; justify-content: space-around; width: 50%">
+  <div class="start-time">
+    <button class="btn-success btn" onclick="start()">Start Now</button>
+  </div>
+  <div class="start-time">
+    <button class="btn-danger btn" onclick="start()">Cancle</button>
+  </div>
+</div>
+
+<script>
+  function copyToClipboard(text) {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        alert("Copied to clipboard: " + text);
+      })
+      .catch((err) => {
+        console.error("Error copying to clipboard: ", err);
+      });
+  }
+
+  function prependItem(join) {
+    const member = document.createElement("lable");
+    member.setAttribute("id", join.id);
+    member.setAttribute("style", "width: 100%; margin: 5px; margin-left: 5%;");
+    member.innerHTML =
+      "<strong>" + join.name + "</strong>(" + join.id + ")<br>";
+    document.getElementsByClassName("quiz-join-list")[0].prepend(member);
+  }
+
+  socket.on("removeFromWaitList", (mid) => {
+    console.log(mid);
+    document
+      .getElementsByClassName("quiz-join-list")[0]
+      .querySelector("#" + mid)
+      .remove();
+  });
+
+  function start() {
+    socket.emit("start", room);
+  }
+
+  socket.on("roomCreateMsg", (msg) => {
+    alert(msg);
+    alert("Note : You can not stop quiz once you started.");
+  });
+
+  socket.on("joinlistmem", (join) => {
+    console.log(join);
+    prependItem(join);
+  });
+</script>
+
+<%- include("mainfooter")-%>

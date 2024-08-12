@@ -1,0 +1,74 @@
+<%- include("mainhead") -%>
+
+<script>
+    var body = document.body;
+    body.style.display = "block";
+    body.style.height = "100%"
+</script>
+<div class = "join-cont">
+    <center>
+        <div class="starter-template" style="margin-top: 5vh;">
+            <h2>Enter Quiz-ID to Join the Quiz</h2>
+                <table>
+                    <tr>
+                        <td>
+                            <label style="margin-bottom: 0;"><h4 style="margin-bottom: 0; margin-right: 15px;">Quiz-ID: </h4></label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" width="50px" id = 'qid'>
+                        </td>
+                        <td><button class="btn-success btn" style="margin-left: 5px;" onclick="checkQuiz()">Join Quiz</button></td>
+                    </tr>
+                </table>
+        </div>
+    </center>
+    
+</div>
+
+<div class="overlay">
+    <div class="take-confirm">
+        <h2>Confirm to take Quiz</h2><br>
+        <div style="height: 15px;"></div>
+        <label><h3>Quiz Name: </h3><h5 id="qzName"></h5>(<label id="quizId">cjewvjjvewfk</label>)<br></label><br>
+        <div class="line-break">
+            <h3>As: </h3>
+            <h4><%= name %></h4>
+            (<lable><%= user %></lable>)
+        </div>
+        <div class="conf-btn">
+            <button class="btn btn-success btns">Start Quiz</button>
+            <button class="btn btn-danger btns">Cancle</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function checkQuiz(){
+        var qzid = document.getElementById('qid');
+        var qid = qzid.value;
+        try{
+            const response = await fetch("/chk-quiz", {
+                  method: 'POST',
+                  headers: {
+                     'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({qzId : qid, usr : "<%= user %>"})
+               });
+
+               const info = await response.json();
+
+               if(info.stat === true){
+                window.location.href = "/take-quiz/"+qid;
+               }
+               else{
+                alert(info.msg);
+               }
+
+        }
+        catch (err) {
+            alert('Error with API');
+        }
+    }
+</script>
+
+<%- include("mainfooter")-%>
